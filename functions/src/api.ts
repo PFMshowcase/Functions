@@ -50,7 +50,7 @@ class BasiqAPI {
 		return tokenData["value"];
 	};
 
-	public createUser = async (email: string, name: { fName: string; lName: string; display?: string }) => {
+	public createUser = async (email: string, name: { fName: string; lName: string; display?: string }): Promise<string> => {
 		const data = { email: email, firstName: name.fName, lastName: name.lName };
 		const config = this.createConfig(httpsMethods.post, "/users", data, { accept: "application/json", contentType: "application/json" });
 
@@ -58,13 +58,13 @@ class BasiqAPI {
 			const res = await axios(config);
 
 			this.userId = res.data.id;
-			return res.data.id;
+			return res.data.id as string;
 		} catch (err: any) {
 			throw CustomHttpsError.create(customErrorTypes.basiq, err);
 		}
 	};
 
-	public generateClientToken = async () => this.generateToken(tokenScope.client);
+	public generateClientToken = async () => await this.generateToken(tokenScope.client);
 	public generateServerToken = async () => {
 		if (!this._fsdb) throw CustomHttpsError.create(customErrorTypes.generic, "internal", "Must initialize class first");
 		this._token = await this.generateToken(tokenScope.server);
@@ -82,7 +82,7 @@ class BasiqAPI {
 		return this._token;
 	};
 
-	private generateToken = async (scope: tokenScope) => {
+	private generateToken = async (scope: tokenScope): Promise<string> => {
 		if (!this._apiKey) throw CustomHttpsError.create(customErrorTypes.generic, "internal", "Api key required");
 		if (!this.userId && scope === tokenScope.client) throw CustomHttpsError.create(customErrorTypes.generic, "internal", "UserId required");
 
@@ -100,7 +100,7 @@ class BasiqAPI {
 		try {
 			const res = await axios(config);
 
-			return res.data.access_token;
+			return res.data.access_token as string;
 		} catch (err: any) {
 			throw CustomHttpsError.create(customErrorTypes.basiq, err);
 		}

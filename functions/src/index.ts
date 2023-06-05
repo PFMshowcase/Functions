@@ -38,7 +38,11 @@ export const setupuser = onCall(
 			return CustomHttpsError.create(customErrorTypes.firestore, err);
 		}
 
-		return { "basic-uuid": id, "basiq-token": token, "basiq-token-expiry": expiryDate };
+		return {
+			"basiq-uuid": id,
+			"basiq-token": token,
+			"basiq-token-expiry": Timestamp.fromDate(expiryDate).seconds,
+		};
 	}
 );
 
@@ -52,11 +56,11 @@ export const loginuser = onCall(
 		if (!req.auth) throw CustomHttpsError.create(customErrorTypes.generic, "unauthenticated", "Call must be made by an authenticated user");
 
 		await basiqApi.initialize(defineString("BASIQ_KEY").value());
-		let data: any;
+		let data: { "basiq-uuid": string; "basiq-token": string; "basiq-token-expiry": Timestamp };
 
 		try {
 			const userDoc = await fsdb.collection("users").doc(req.auth.uid).get();
-			data = userDoc.data();
+			data = userDoc.data() as { "basiq-uuid": string; "basiq-token": string; "basiq-token-expiry": Timestamp };
 		} catch (err: any) {
 			throw CustomHttpsError.create(customErrorTypes.firestore, err);
 		}
@@ -79,9 +83,9 @@ export const loginuser = onCall(
 				return CustomHttpsError.create(customErrorTypes.firestore, err);
 			}
 
-			return { "basiq-uuid": data["basiq-uuid"], "basiq-token": token, "basiq-token-expiry": expiry };
+			return { "basiq-uuid": data["basiq-uuid"], "basiq-token": token, "basiq-token-expiry": expiry.seconds };
 		} else {
-			return { "basiq-uuid": data["basiq-uuid"], "basiq-token": data["basiq-token"], "basiq-token-expiry": data["basiq-token-expiry"] };
+			return { "basiq-uuid": data["basiq-uuid"], "basiq-token": data["basiq-token"], "basiq-token-expiry": data["basiq-token-expiry"].seconds };
 		}
 	}
 );
