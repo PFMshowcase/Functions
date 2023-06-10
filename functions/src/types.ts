@@ -2,6 +2,7 @@
 import { AxiosError } from "axios";
 import { FirebaseError } from "firebase-admin";
 import { FunctionsErrorCode, HttpsError } from "firebase-functions/v2/https";
+import { Timestamp } from "firebase-admin/firestore";
 
 export class CustomHttpsError {
 	private constructor() {
@@ -76,4 +77,74 @@ const basiqErrCodes: { [key: string]: FunctionsErrorCode } = {
 	"missing-required-field-value": "invalid-argument",
 	"invalid-field-value": "invalid-argument",
 	"invalid-request-content": "invalid-argument",
+};
+
+export type UserData = {
+	"basiq-uuid": string;
+	"basiq-token": string;
+	"basiq-token-expiry": Timestamp;
+	name: { display: string | null; fName: string; lName: string };
+	"first-transaction"?: Timestamp;
+	"latest-transaction"?: Timestamp;
+};
+
+export type Transaction = {
+	type: string;
+	id: string;
+	account: string;
+	amount: string;
+	balance: string;
+	class: string;
+	subClass?: { code?: string; title?: string };
+	connection: string;
+	description: string;
+	enrich: {
+		cleanDescription: string;
+		tags: unknown;
+		category: {
+			anzsic?: {
+				division?: details;
+				subdivision?: details;
+				group?: details;
+				class?: details;
+				subclass?: details;
+			};
+		};
+		location: {
+			country?: string;
+			formattedAddress?: string;
+			geometry?: {
+				lat?: string;
+				lng?: string;
+			};
+			postalCode?: string;
+			route?: string;
+			routeNo?: string;
+			state?: string;
+			suburb?: string;
+		};
+		merchant: merchant;
+	};
+	institution: string;
+	postDate: string;
+	status: string;
+	transactionDate: string;
+};
+
+type details = {
+	code?: string;
+	title?: string;
+};
+
+type merchant = {
+	id: string;
+	businessName: string;
+	ABN: string;
+	logoMaster: string;
+	logoThumb: string;
+	phoneNumber?: {
+		international?: string;
+		local?: string;
+	};
+	website: string;
 };

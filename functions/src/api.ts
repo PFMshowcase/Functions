@@ -102,6 +102,23 @@ class BasiqAPI {
 
 			return res.data.access_token as string;
 		} catch (err: any) {
+			console.error(err);
+			throw CustomHttpsError.create(customErrorTypes.basiq, err);
+		}
+	};
+
+	public req = async (method: httpsMethods, path: string, data?: { [key: string]: any }) => {
+		const config = this.createConfig(method, path, qs.stringify(data), {
+			auth: `Bearer ${this.token}`,
+			accept: "application/json",
+			contentType: "application/json",
+		});
+
+		try {
+			const res = await axios(config);
+			return res.data;
+		} catch (err: any) {
+			console.error(err);
 			throw CustomHttpsError.create(customErrorTypes.basiq, err);
 		}
 	};
@@ -137,7 +154,7 @@ enum tokenScope {
 	server = "SERVER_ACCESS",
 }
 
-enum httpsMethods {
+export enum httpsMethods {
 	post = "post",
 	get = "get",
 	put = "put",
