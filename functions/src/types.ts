@@ -126,7 +126,7 @@ export type Transaction = {
 		merchant: merchant;
 	};
 	institution: string;
-	postDate: string;
+	postDate: string | Timestamp;
 	status: string;
 	transactionDate: string;
 };

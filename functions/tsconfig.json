@@ -1,6 +1,9 @@
 {
 	"compilerOptions": {
-		"module": "NodeNext",
+		"lib": ["es2022", "DOM"],
+		"target": "es2022",
+		"module": "commonjs",
+		"moduleResolution": "node",
 		"noImplicitReturns": true,
 		"noImplicitAny": true,
 		"noUnusedLocals": false,
@@ -9,9 +12,10 @@
 		"sourceMap": true,
 		"strict": true,
 		"esModuleInterop": true,
-		"resolveJsonModule": true
+		"resolveJsonModule": true,
+		"allowSyntheticDefaultImports": true
 	},
 	"compileOnSave": true,
-	"include": ["src", ".d.ts", "**/**/*.png"],
+	"include": ["src"],
 	"allowJs": true
 }

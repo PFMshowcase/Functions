@@ -1,7 +1,7 @@
 /* eslint-disable no-extend-native */
 import firebaseAdmin from "firebase-admin";
-import { setupuser } from "./setupuser.js";
-import { loginuser } from "./loginuser.js";
+import { exportFunctions } from "better-firebase-functions";
+import { sep } from "path";
 
 firebaseAdmin.initializeApp();
 
@@ -18,4 +18,19 @@ if (!Date.prototype.toISOStringDate) {
 	};
 }
 
-export { setupuser, loginuser };
+const formatPath = (relPath: string): string => {
+	const relPathArray = relPath.split(sep);
+	const fileName = relPathArray.pop() ?? "";
+	const relDirPathFunctionNameChunk = relPathArray.map((pathFragment) => pathFragment.toLowerCase()).join(sep);
+	const fileNameFunctionNameChunk = fileName.toLowerCase().split(".")[0];
+	const funcName = relDirPathFunctionNameChunk ? `${relDirPathFunctionNameChunk}${sep}${fileNameFunctionNameChunk}` : fileNameFunctionNameChunk;
+	return funcName.split(sep).join("-");
+};
+
+exportFunctions({
+	__filename,
+	exports,
+	searchGlob: "**/**.f.{ts,js}",
+	functionDirectoryPath: "./functions",
+	funcNameFromRelPath: formatPath,
+});

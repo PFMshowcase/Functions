@@ -3,11 +3,11 @@ import { getFirestore, Timestamp } from "firebase-admin/firestore";
 import { onCall } from "firebase-functions/v2/https";
 import { defineString } from "firebase-functions/params";
 
-import { CustomHttpsError, UserData, customErrorTypes } from "./types.js";
-import basiqApi from "./api.js";
-import { getTransactions } from "./transactions.js";
+import { CustomHttpsError, UserData, customErrorTypes } from "../../types.js";
+import basiqApi from "../../api.js";
+import { getTransactions } from "../../transactions/transactions.js";
 
-export const setupuser = onCall(
+export default onCall(
 	{
 		region: "australia-southeast1",
 		memory: "128MiB",

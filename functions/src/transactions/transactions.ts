@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Firestore, Timestamp } from "firebase-admin/firestore";
-import basiqApi, { httpsMethods } from "./api.js";
-import { CustomHttpsError, Transaction, UserData, customErrorTypes } from "./types.js";
+import basiqApi, { httpsMethods } from "../api.js";
+import { CustomHttpsError, Transaction, UserData, customErrorTypes } from "../types.js";
 
 export const getTransactions = async (fsdb: Firestore, userData: UserData, userId: string) => {
 	// Check last transaction fetch
@@ -12,9 +12,7 @@ export const getTransactions = async (fsdb: Firestore, userData: UserData, userI
 		const prevTenDays = new Date();
 		const currentDayNum = prevTenDays.getDate();
 
-		prevTenDays.setDate(currentDayNum - 2);
-
-		console.log(prevTenDays.toISOStringDate());
+		prevTenDays.setDate(currentDayNum - 5);
 
 		userData["latest-transaction"] = Timestamp.fromDate(prevTenDays);
 		userData["first-transaction"] = Timestamp.fromDate(prevTenDays);
@@ -27,15 +25,7 @@ export const getTransactions = async (fsdb: Firestore, userData: UserData, userI
 
 	const transactions: [Transaction] = (transactionsData.data as [Transaction]) ?? [];
 
-	console.log(transactions.length);
-
-	userData["latest-transaction"] = transactions.reduce<Timestamp>((prev, current) => {
-		const nextDate = Timestamp.fromDate(new Date(current.postDate));
-		if (nextDate > prev) {
-			return nextDate;
-		}
-		return prev;
-	}, latestTransaction);
+	userData["latest-transaction"] = Timestamp.now();
 
 	const batch = fsdb.batch();
 	const userRef = fsdb.collection("users").doc(userId);
@@ -43,8 +33,16 @@ export const getTransactions = async (fsdb: Firestore, userData: UserData, userI
 	batch.update(userRef, userData);
 
 	transactions.forEach((transaction) => {
+		const formattedTransaction = transaction;
+
+		const postDate = formattedTransaction.postDate;
+		console.log(typeof postDate);
+		if (typeof postDate === "string") {
+			formattedTransaction.postDate = Timestamp.fromDate(new Date(transaction.postDate as string));
+		}
+
 		const ref = userRef.collection("transactions").doc();
-		batch.create(ref, transaction);
+		batch.create(ref, formattedTransaction);
 	});
 
 	try {
