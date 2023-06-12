@@ -3,9 +3,9 @@ import { getFirestore, Timestamp } from "firebase-admin/firestore";
 import { onCall } from "firebase-functions/v2/https";
 import { defineString } from "firebase-functions/params";
 
-import { CustomHttpsError, UserData, customErrorTypes } from "../../types.js";
+import { CustomHttpsError, customErrorTypes } from "../../types.js";
 import basiqApi from "../../api.js";
-import { getTransactions } from "../../transactions/transactions.js";
+import { getInsights } from "../../transactions/insights.js";
 
 export default onCall(
 	{
@@ -28,14 +28,11 @@ export default onCall(
 		const expiryDate = new Date();
 		expiryDate.setMinutes(expiryDate.getMinutes() + 20);
 
-		const userData: UserData = {
-			"basiq-token": token,
-			"basiq-uuid": id,
-			"basiq-token-expiry": Timestamp.fromDate(expiryDate),
-			name: req.data.name,
-		};
-
-		await getTransactions(fsdb, userData, req.auth.uid);
+		await getInsights(
+			fsdb,
+			{ "basiq-token": token, "basiq-token-expiry": Timestamp.fromDate(expiryDate), "basiq-uuid": id, name: req.data.name },
+			req.auth
+		);
 
 		return {
 			"basiq-uuid": id,

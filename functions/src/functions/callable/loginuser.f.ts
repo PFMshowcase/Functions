@@ -5,7 +5,7 @@ import { defineString } from "firebase-functions/params";
 
 import { CustomHttpsError, customErrorTypes, UserData } from "../../types.js";
 import basiqApi from "../../api.js";
-import { getTransactions } from "../../transactions/transactions.js";
+import { getInsights } from "../../transactions/insights.js";
 
 export default onCall(
 	{
@@ -23,8 +23,7 @@ export default onCall(
 		let data: UserData;
 
 		try {
-			const userDoc = await fsdb.collection("users").doc(req.auth.uid).get();
-			data = userDoc.data() as UserData;
+			data = (await fsdb.collection("users").doc(req.auth.uid).get()).data() as UserData;
 		} catch (err: any) {
 			throw CustomHttpsError.create(customErrorTypes.firestore, err);
 		}
@@ -34,25 +33,21 @@ export default onCall(
 		basiqApi.userId = data["basiq-uuid"];
 
 		if (data["basiq-token-expiry"] < Timestamp.now()) {
-			// create
-			const token = await basiqApi.generateClientToken();
+			// create token
+			data["basiq-token"] = await basiqApi.generateClientToken();
 
 			const expiryDate = new Date();
 			expiryDate.setMinutes(expiryDate.getMinutes() + 20);
-			const expiry = Timestamp.fromDate(expiryDate);
-
-			await getTransactions(fsdb, { ...data, "basiq-token": token, "basiq-token-expiry": expiry }, req.auth.uid);
-
-			return { "basiq-uuid": data["basiq-uuid"], "basiq-token": token, "basiq-token-expiry": expiry.seconds, name: data["name"] };
-		} else {
-			await getTransactions(fsdb, data, req.auth.uid);
-
-			return {
-				"basiq-uuid": data["basiq-uuid"],
-				"basiq-token": data["basiq-token"],
-				"basiq-token-expiry": data["basiq-token-expiry"].seconds,
-				name: data["name"],
-			};
+			data["basiq-token-expiry"] = Timestamp.fromDate(expiryDate);
 		}
+
+		await getInsights(fsdb, data, req.auth);
+
+		return {
+			"basiq-uuid": data["basiq-uuid"],
+			"basiq-token": data["basiq-token"],
+			"basiq-token-expiry": data["basiq-token-expiry"].seconds,
+			name: data["name"],
+		};
 	}
 );

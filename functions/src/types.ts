@@ -86,6 +86,9 @@ export type UserData = {
 	name: { display: string | null; fName: string; lName: string };
 	"first-transaction"?: Timestamp;
 	"latest-transaction"?: Timestamp;
+	affordability?: Affordability;
+	"monthly-income"?: number;
+	"monthly-expenses"?: number;
 };
 
 export type Transaction = {
@@ -126,7 +129,7 @@ export type Transaction = {
 		merchant: merchant;
 	};
 	institution: string;
-	postDate: string | Timestamp;
+	postDate: Timestamp;
 	status: string;
 	transactionDate: string;
 };
@@ -147,4 +150,119 @@ type merchant = {
 		local?: string;
 	};
 	website: string;
+};
+
+export type Affordability = {
+	id: string;
+	coverageDays: number;
+	assets: [AffordabilityAsset];
+	external: [AffordabilityExternal];
+	fromMonth: string;
+	toMonth: string;
+	generatedDate: string;
+	liabilities: AffordabilityLiability;
+	summary: AffordabilitySummary;
+};
+
+type AffordabilityAsset = {
+	type: string;
+	account: AffordabilityAccount;
+	availableFunds: string;
+	balance: string;
+	currency: string;
+	institution: string;
+	previous6Months: {
+		maxBalance: string | null;
+		minBalance: string | null;
+	};
+};
+
+type AffordabilitySummary = {
+	assets: string | null;
+	creditLimit: string | null;
+	expenses: string;
+	liabilities: string | null;
+	loanRepaymentMonthly: string | null;
+	netPosition: string | null;
+	potentialLiabilitiesMonthly: string | null;
+	regularIncome: {
+		previous3Months: {
+			avgMonthly: string | null;
+		};
+	};
+	savings: string | null;
+};
+
+type AffordabilityExternal = {
+	changeHistory: [
+		{
+			amount: string;
+			date: Date;
+			source: string;
+		}
+	];
+	payments: [
+		{
+			amountAvg: string;
+			amountAvgMonthly: string;
+			first: Date;
+			last: Date;
+			noOccurrences: number;
+			total: string;
+		}
+	];
+	source: string;
+};
+
+type AffordabilityLiability = {
+	credit: [
+		{
+			account: AffordabilityAccount;
+			availableFunds: string | null;
+			balance: string | null;
+			creditLimit: string | null;
+			currency: string;
+			institution: string;
+			previous6Months: {
+				cashAdvances: string;
+			};
+			previousMonth: {
+				maxBalance: string;
+				minBalance: string;
+				totalCredits: string;
+				totalDebits: string;
+			};
+		}
+	];
+	loan: [
+		{
+			account: AffordabilityAccount;
+			availableFunds: string | null;
+			balance: string | null;
+			changeHistory: [
+				{
+					amount: string;
+					date: Date;
+					direction: string;
+					source: string;
+				}
+			];
+			currency: string;
+			institution: string;
+			previous6Months: {
+				arrears: string | null;
+			};
+			previousMonth: {
+				totalCredits: string;
+				totalDebits: string;
+				totalInterestCharged: string;
+				totalRepayments: string;
+			};
+		}
+	];
+};
+
+type AffordabilityAccount = {
+	product: string;
+	type: string;
 };
