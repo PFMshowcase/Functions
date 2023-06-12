@@ -80,15 +80,22 @@ const basiqErrCodes: { [key: string]: FunctionsErrorCode } = {
 };
 
 export type UserData = {
-	"basiq-uuid": string;
-	"basiq-token": string;
-	"basiq-token-expiry": Timestamp;
-	name: { display: string | null; fName: string; lName: string };
-	"first-transaction"?: Timestamp;
-	"latest-transaction"?: Timestamp;
-	affordability?: Affordability;
-	"monthly-income"?: number;
-	"monthly-expenses"?: number;
+	name: { display: string | null; first: string; last: string };
+	basiq_user: {
+		uuid: string;
+		token: string;
+		token_expiry: Timestamp;
+	};
+	basiq_transactions?: {
+		first_transaction: Timestamp;
+		latest_transaction: Timestamp;
+	};
+	basiq_affordability?: Affordability;
+	summary?: {
+		monthly_income: number;
+		monthly_expenses: number;
+		monthly_net: number;
+	};
 };
 
 export type Transaction = {

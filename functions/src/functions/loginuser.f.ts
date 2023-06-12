@@ -3,9 +3,9 @@ import { getFirestore, Timestamp } from "firebase-admin/firestore";
 import { onCall } from "firebase-functions/v2/https";
 import { defineString } from "firebase-functions/params";
 
-import { CustomHttpsError, customErrorTypes, UserData } from "../../types.js";
-import basiqApi from "../../api.js";
-import { getInsights } from "../../transactions/insights.js";
+import { CustomHttpsError, customErrorTypes, UserData } from "../types.js";
+import basiqApi from "../api.js";
+import { getInsights } from "../transactions/insights.js";
 
 export default onCall(
 	{
@@ -30,24 +30,24 @@ export default onCall(
 
 		if (!data) throw CustomHttpsError.create(customErrorTypes.generic, "not-found", "Basiq user not found");
 
-		basiqApi.userId = data["basiq-uuid"];
+		basiqApi.userId = data.basiq_user.uuid;
 
-		if (data["basiq-token-expiry"] < Timestamp.now()) {
+		if (data.basiq_user.token_expiry < Timestamp.now()) {
 			// create token
-			data["basiq-token"] = await basiqApi.generateClientToken();
+			data.basiq_user.token = await basiqApi.generateClientToken();
 
 			const expiryDate = new Date();
 			expiryDate.setMinutes(expiryDate.getMinutes() + 20);
-			data["basiq-token-expiry"] = Timestamp.fromDate(expiryDate);
+			data.basiq_user.token_expiry = Timestamp.fromDate(expiryDate);
 		}
 
 		await getInsights(fsdb, data, req.auth);
 
 		return {
-			"basiq-uuid": data["basiq-uuid"],
-			"basiq-token": data["basiq-token"],
-			"basiq-token-expiry": data["basiq-token-expiry"].seconds,
-			name: data["name"],
+			"basiq-uuid": data.basiq_user.uuid,
+			"basiq-token": data.basiq_user.token,
+			"basiq-token-expiry": data.basiq_user.token_expiry.seconds,
+			name: data.name,
 		};
 	}
 );

@@ -23,5 +23,5 @@ export const getMonthlySummary = async (fsdb: Firestore, transactions: Transacti
 		}
 	});
 
-	return { ...userData, "monthly-income": monthlyIncome, "monthly-expenses": monthlyExpenses };
+	return { ...userData, summary: { monthly_expenses: monthlyExpenses, monthly_income: monthlyIncome, monthly_net: monthlyExpenses + monthlyIncome } };
 };
