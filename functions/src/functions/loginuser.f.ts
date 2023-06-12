@@ -5,7 +5,7 @@ import { defineString } from "firebase-functions/params";
 
 import { CustomHttpsError, customErrorTypes, UserData } from "../types.js";
 import basiqApi from "../api.js";
-import { getInsights } from "../transactions/insights.js";
+import { getInsights } from "../insights/insights.js";
 
 export default onCall(
 	{
