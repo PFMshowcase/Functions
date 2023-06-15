@@ -29,7 +29,9 @@ export default onMessagePublished(
 			users.map(async (user) => {
 				const lastRefresh = new Date(user.metadata.lastSignInTime);
 				if ((lastRefresh && lastRefresh > pastWeek) || data.force) {
-					const userData = (await fsdb.collection("users").doc(user.uid).get()).data() as UserData | undefined;
+					const userRef = fsdb.collection("users").doc(user.uid);
+					const userData = (await userRef.get()).data() as UserData | undefined;
+					await userRef.update({ refreshing: true });
 					if (userData) await getInsights(fsdb, userData, user.uid);
 				}
 				return;

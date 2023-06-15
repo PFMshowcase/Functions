@@ -1,4 +1,4 @@
-import { Firestore } from "firebase-admin/firestore";
+import { Firestore, Timestamp } from "firebase-admin/firestore";
 import { UserData } from "../../../types";
 import { getTransactions } from "./transactions";
 import { getAffordability } from "./affordability";
@@ -14,6 +14,9 @@ export const getInsights = async (fsdb: Firestore, data: UserData, uuid: string)
 
 	// Make monthly summary based on current months transaction history
 	userData = await getMonthlySummary(fsdb, transactions, uuid, userData);
+
+	userData.refreshing = false;
+	userData.last_refresh = Timestamp.now();
 
 	// Update/set firebase user data on Firestore
 	await updateUser(fsdb, uuid, userData, transactions);
