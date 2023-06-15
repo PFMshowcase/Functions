@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Timestamp } from "firebase-admin/firestore";
-import basiqApi, { httpsMethods } from "../api.js";
-import { Transaction, UserData } from "../types.js";
+import basiqApi, { httpsMethods } from "../../../api.js";
+import { Transaction, UserData } from "../../../types.js";
 
 export const getTransactions = async (userData: UserData): Promise<[Transaction[], UserData]> => {
 	// Get one month ago if no latest transaction

@@ -86,6 +86,8 @@ export type UserData = {
 		token: string;
 		token_expiry: Timestamp;
 	};
+	last_refresh: Timestamp | null;
+	refreshing: boolean;
 	basiq_transactions?: {
 		first_transaction: Timestamp;
 		latest_transaction: Timestamp;

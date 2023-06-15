@@ -1,11 +1,10 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { getFirestore, Timestamp } from "firebase-admin/firestore";
+import { Timestamp } from "firebase-admin/firestore";
 import { onCall } from "firebase-functions/v2/https";
 import { defineString } from "firebase-functions/params";
 
-import { CustomHttpsError, UserData, customErrorTypes } from "../types.js";
-import basiqApi from "../api.js";
-import { getInsights } from "../insights/insights.js";
+import { CustomHttpsError, UserData, customErrorTypes } from "../../types.js";
+import basiqApi from "../../api.js";
+import { initialize, updateUser } from "../../firebase.js";
 
 export default onCall(
 	{
@@ -19,7 +18,7 @@ export default onCall(
 			throw CustomHttpsError.create(customErrorTypes.generic, "invalid-argument", "Call must include users displayName and email");
 		}
 
-		const fsdb = getFirestore();
+		const { fsdb } = initialize();
 
 		await basiqApi.initialize(defineString("BASIQ_KEY").value());
 		const id = await basiqApi.createUser(req.data.email, req.data.name);
@@ -35,14 +34,11 @@ export default onCall(
 				uuid: id,
 			},
 			name: req.data.name,
+			last_refresh: null,
+			refreshing: false,
 		};
 
-		await getInsights(fsdb, userData, req.auth);
-
-		return {
-			"basiq-uuid": id,
-			"basiq-token": token,
-			"basiq-token-expiry": Timestamp.fromDate(expiryDate).seconds,
-		};
+		await updateUser(fsdb, req.auth.uid, userData, []);
+		return userData;
 	}
 );

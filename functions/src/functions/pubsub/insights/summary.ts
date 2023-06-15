@@ -1,12 +1,11 @@
 import { Firestore } from "firebase-admin/firestore";
-import { Transaction, UserData } from "../types";
-import { AuthData } from "firebase-functions/lib/common/providers/tasks";
+import { Transaction, UserData } from "../../../types";
 
-export const getMonthlySummary = async (fsdb: Firestore, transactions: Transaction[], auth: AuthData, userData: UserData): Promise<UserData> => {
+export const getMonthlySummary = async (fsdb: Firestore, transactions: Transaction[], uuid: string, userData: UserData): Promise<UserData> => {
 	let monthlyIncome = 0.0;
 	let monthlyExpenses = 0.0;
 
-	const oldTransactionData = await fsdb.collection("users").doc(auth.uid).collection("transactions").get();
+	const oldTransactionData = await fsdb.collection("users").doc(uuid).collection("transactions").get();
 	const allTransactions = transactions;
 	oldTransactionData.forEach((doc) => {
 		allTransactions.push(doc.data() as Transaction);

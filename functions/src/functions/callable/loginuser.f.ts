@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { getFirestore, Timestamp } from "firebase-admin/firestore";
+import { Timestamp } from "firebase-admin/firestore";
 import { onCall } from "firebase-functions/v2/https";
 import { defineString } from "firebase-functions/params";
 
-import { CustomHttpsError, customErrorTypes, UserData } from "../types.js";
-import basiqApi from "../api.js";
-import { getInsights } from "../insights/insights.js";
+import { CustomHttpsError, customErrorTypes, UserData } from "../../types.js";
+import basiqApi from "../../api.js";
+import { initialize, updateUser } from "../../firebase.js";
+import { PubSub } from "@google-cloud/pubsub";
 
 export default onCall(
 	{
@@ -16,7 +17,7 @@ export default onCall(
 	async (req) => {
 		if (!req.auth) throw CustomHttpsError.create(customErrorTypes.generic, "unauthenticated", "Call must be made by an authenticated user");
 
-		const fsdb = getFirestore();
+		const { fsdb } = initialize();
 
 		await basiqApi.initialize(defineString("BASIQ_KEY").value());
 
@@ -41,13 +42,15 @@ export default onCall(
 			data.basiq_user.token_expiry = Timestamp.fromDate(expiryDate);
 		}
 
-		await getInsights(fsdb, data, req.auth);
+		await updateUser(fsdb, req.auth.uid, data, []);
 
-		return {
-			"basiq-uuid": data.basiq_user.uuid,
-			"basiq-token": data.basiq_user.token,
-			"basiq-token-expiry": data.basiq_user.token_expiry.seconds,
-			name: data.name,
-		};
+		// 21,600,000 is 6 hours worth of ms - checking if it was last refreshed more than 6 hours ago
+		if (!data.last_refresh || data.last_refresh.toDate().getTime() < new Date().getTime() - 21600000) {
+			const pub = new PubSub();
+			const json = { uuid: req.auth.uid, force: true };
+			await pub.topic("projects/personal-finance-34aec/topics/insights", { batching: { maxMessages: 1 } }).publishMessage({ json });
+		}
+
+		return data;
 	}
 );

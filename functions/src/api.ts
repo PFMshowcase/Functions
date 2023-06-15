@@ -50,18 +50,12 @@ class BasiqAPI {
 		return tokenData["value"];
 	};
 
-	public createUser = async (email: string, name: { fName: string; lName: string; display?: string }): Promise<string> => {
-		const data = { email: email, firstName: name.fName, lastName: name.lName };
-		const config = this.createConfig(httpsMethods.post, "/users", data, { accept: "application/json", contentType: "application/json" });
+	public createUser = async (email: string, name: { first: string; last: string; display?: string }): Promise<string> => {
+		const data = { email: email, firstName: name.first, lastName: name.last };
 
-		try {
-			const res = await axios(config);
-
-			this.userId = res.data.id;
-			return res.data.id as string;
-		} catch (err: any) {
-			throw CustomHttpsError.create(customErrorTypes.basiq, err);
-		}
+		const resData = await this.req(httpsMethods.post, "/users", data);
+		this.userId = resData.id as string;
+		return this.userId;
 	};
 
 	public generateClientToken = async () => await this.generateToken(tokenScope.client);
@@ -108,8 +102,7 @@ class BasiqAPI {
 	};
 
 	public req = async (method: httpsMethods, path: string, data?: { [key: string]: any }) => {
-		const config = this.createConfig(method, path, qs.stringify(data), {
-			auth: `Bearer ${this.token}`,
+		const config = this.createConfig(method, path, data, {
 			accept: "application/json",
 			contentType: "application/json",
 		});
@@ -118,7 +111,6 @@ class BasiqAPI {
 			const res = await axios(config);
 			return res.data;
 		} catch (err: any) {
-			console.error(err);
 			throw CustomHttpsError.create(customErrorTypes.basiq, err);
 		}
 	};
@@ -155,11 +147,11 @@ enum tokenScope {
 }
 
 export enum httpsMethods {
-	post = "post",
-	get = "get",
-	put = "put",
-	patch = "patch",
-	delete = "delete",
+	post = "POST",
+	get = "GET",
+	put = "PUT",
+	patch = "PATCH",
+	delete = "DELETE",
 }
 
 type configMetadata = {
