@@ -5,7 +5,7 @@ import { defineString } from "firebase-functions/params";
 
 import { CustomHttpsError, customErrorTypes, UserData } from "../../types.js";
 import basiqApi from "../../api.js";
-import { initialize, updateUser } from "../../firebase.js";
+import { convertTimestampsToJson, initialize, updateUser } from "../../firebase.js";
 import { PubSub } from "@google-cloud/pubsub";
 
 export default onCall(
@@ -51,6 +51,6 @@ export default onCall(
 			await pub.topic("projects/personal-finance-34aec/topics/insights", { batching: { maxMessages: 1 } }).publishMessage({ json });
 		}
 
-		return data;
+		return convertTimestampsToJson(data);
 	}
 );

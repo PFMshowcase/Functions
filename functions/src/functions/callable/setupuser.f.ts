@@ -4,7 +4,7 @@ import { defineString } from "firebase-functions/params";
 
 import { CustomHttpsError, UserData, customErrorTypes } from "../../types.js";
 import basiqApi from "../../api.js";
-import { initialize, updateUser } from "../../firebase.js";
+import { convertTimestampsToJson, initialize, updateUser } from "../../firebase.js";
 
 export default onCall(
 	{
@@ -39,6 +39,7 @@ export default onCall(
 		};
 
 		await updateUser(fsdb, req.auth.uid, userData, []);
-		return userData;
+
+		return convertTimestampsToJson(userData);
 	}
 );

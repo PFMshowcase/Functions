@@ -94,9 +94,12 @@ export type UserData = {
 	};
 	basiq_affordability?: Affordability;
 	summary?: {
-		monthly_income: number;
-		monthly_expenses: number;
-		monthly_net: number;
+		month_to_date_income: number;
+		month_to_date_expenses: number;
+		month_to_date_savings: number;
+		month_avg_income: number | null;
+		month_avg_expenses: number;
+		month_avg_savings: number | null;
 	};
 };
 

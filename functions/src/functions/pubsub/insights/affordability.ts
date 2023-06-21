@@ -12,8 +12,6 @@ export const getAffordability = async (userData: UserData) => {
 			userData.basiq_affordability = (await basiqApi.req(httpsMethods.post, `/users/${userData.basiq_user.uuid}/affordability`)) as Affordability;
 		} catch (err: any) {
 			if (err instanceof HttpsError) {
-				console.log(err.code, err.httpErrorCode.status);
-
 				if (err.httpErrorCode.status === 404) {
 					console.log(`${err.httpErrorCode.status}-${err.code}-${err.message}`);
 				} else {

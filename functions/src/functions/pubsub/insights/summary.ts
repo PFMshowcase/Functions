@@ -1,7 +1,11 @@
 import { Firestore } from "firebase-admin/firestore";
-import { Transaction, UserData } from "../../../types";
+import { CustomHttpsError, Transaction, UserData, customErrorTypes } from "../../../types";
 
 export const getMonthlySummary = async (fsdb: Firestore, transactions: Transaction[], uuid: string, userData: UserData): Promise<UserData> => {
+	if (!userData.basiq_affordability) {
+		throw CustomHttpsError.create(customErrorTypes.generic, "not-found", "Could not get Affordability statement for summary");
+	}
+
 	let monthlyIncome = 0.0;
 	let monthlyExpenses = 0.0;
 
@@ -22,5 +26,21 @@ export const getMonthlySummary = async (fsdb: Firestore, transactions: Transacti
 		}
 	});
 
-	return { ...userData, summary: { monthly_expenses: monthlyExpenses, monthly_income: monthlyIncome, monthly_net: monthlyExpenses + monthlyIncome } };
+	const avgExpenses = parseFloat(userData.basiq_affordability.summary.expenses);
+	const avgIncomeStr = userData.basiq_affordability.summary.regularIncome.previous3Months.avgMonthly;
+	const avgSavingsStr = userData.basiq_affordability.summary.savings;
+
+	const avgSavings = avgSavingsStr ? parseFloat(avgSavingsStr) : null;
+	const avgIncome = avgIncomeStr ? parseFloat(avgIncomeStr) : null;
+
+	const summary: UserData["summary"] = {
+		month_avg_expenses: Math.abs(avgExpenses),
+		month_avg_income: avgIncome,
+		month_avg_savings: avgSavings,
+		month_to_date_expenses: Math.abs(monthlyExpenses),
+		month_to_date_income: monthlyIncome,
+		month_to_date_savings: monthlyExpenses + monthlyIncome,
+	};
+
+	return { ...userData, summary };
 };
