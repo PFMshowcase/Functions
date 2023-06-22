@@ -11,7 +11,7 @@ import { PubSub } from "@google-cloud/pubsub";
 export default onCall(
 	{
 		region: "australia-southeast1",
-		memory: "128MiB",
+		memory: "256MiB",
 		cpu: 0.83,
 	},
 	async (req) => {

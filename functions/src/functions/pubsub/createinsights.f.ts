@@ -7,7 +7,7 @@ import basiqApi from "../../api";
 import { defineString } from "firebase-functions/params";
 
 export default onMessagePublished(
-	{ topic: "projects/personal-finance-34aec/topics/insights", region: "australia-southeast1", memory: "128MiB", cpu: 0.83, retry: false },
+	{ topic: "projects/personal-finance-34aec/topics/insights", region: "australia-southeast1", memory: "512MiB", cpu: 1, retry: false },
 	async (event) => {
 		const { fsdb, auth } = initialize();
 		await basiqApi.initialize(defineString("BASIQ_KEY").value());
