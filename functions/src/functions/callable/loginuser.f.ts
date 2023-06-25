@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Timestamp } from "firebase-admin/firestore";
 import { onCall } from "firebase-functions/v2/https";
-import { defineString } from "firebase-functions/params";
+import { PubSub } from "@google-cloud/pubsub";
 
 import { CustomHttpsError, customErrorTypes, UserData } from "../../types.js";
 import basiqApi from "../../api.js";
-import { convertTimestampsToJson, initialize, updateUser } from "../../firebase.js";
-import { PubSub } from "@google-cloud/pubsub";
+import initialize from "../../utils.js";
+import { convertTimestampsToJson, updateUser } from "../../firebase.js";
 
 export default onCall(
 	{
@@ -17,9 +17,7 @@ export default onCall(
 	async (req) => {
 		if (!req.auth) throw CustomHttpsError.create(customErrorTypes.generic, "unauthenticated", "Call must be made by an authenticated user");
 
-		const { fsdb } = initialize();
-
-		await basiqApi.initialize(defineString("BASIQ_KEY").value());
+		const { fsdb } = await initialize();
 
 		let data: UserData;
 

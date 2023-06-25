@@ -1,34 +1,9 @@
-/* eslint-disable no-extend-native */
 import firebaseAdmin from "firebase-admin";
 import { exportFunctions } from "better-firebase-functions";
 import { sep } from "path";
+import * as _ from "./utils.js";
 
 firebaseAdmin.initializeApp();
-
-declare global {
-	interface Date {
-		toISOStringDate: () => string;
-	}
-
-	interface DateConstructor {
-		getDaysAgo: (numDays: number) => Date;
-	}
-}
-
-if (!Date.prototype.toISOStringDate) {
-	// prettier-ignore
-	Date.prototype.toISOStringDate = function(): string {
-		return this.getFullYear() + "-" + ("0" + (this.getMonth() + 1)).slice(-2) + "-" + ("0" + this.getDate()).slice(-2);
-	};
-}
-
-if (!Date.getDaysAgo) {
-	Date.getDaysAgo = (numDays: number): Date => {
-		const date = new Date();
-		date.setDate(date.getDate() - numDays);
-		return date;
-	};
-}
 
 const formatPath = (relPath: string): string => {
 	const relPathArray = relPath.split(sep);

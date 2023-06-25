@@ -1,5 +1,6 @@
 import { Firestore } from "firebase-admin/firestore";
 import { CustomHttpsError, Transaction, UserData, customErrorTypes } from "../../../types";
+import { deepCopy } from "../../../utils";
 
 export const getMonthlySummary = async (fsdb: Firestore, transactions: Transaction[], uuid: string, userData: UserData): Promise<UserData> => {
 	if (!userData.basiq_affordability) {
@@ -10,7 +11,7 @@ export const getMonthlySummary = async (fsdb: Firestore, transactions: Transacti
 	let monthlyExpenses = 0.0;
 
 	const oldTransactionData = await fsdb.collection("users").doc(uuid).collection("transactions").get();
-	const allTransactions = transactions;
+	const allTransactions = deepCopy(transactions);
 	oldTransactionData.forEach((doc) => {
 		allTransactions.push(doc.data() as Transaction);
 	});

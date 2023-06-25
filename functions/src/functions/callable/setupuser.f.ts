@@ -1,10 +1,11 @@
 import { Timestamp } from "firebase-admin/firestore";
 import { onCall } from "firebase-functions/v2/https";
-import { defineString } from "firebase-functions/params";
 
 import { CustomHttpsError, UserData, customErrorTypes } from "../../types.js";
 import basiqApi from "../../api.js";
-import { convertTimestampsToJson, initialize, updateUser } from "../../firebase.js";
+import { convertTimestampsToJson, updateUser } from "../../firebase.js";
+
+import initialize from "../../utils.js";
 
 export default onCall(
 	{
@@ -18,9 +19,8 @@ export default onCall(
 			throw CustomHttpsError.create(customErrorTypes.generic, "invalid-argument", "Call must include users displayName and email");
 		}
 
-		const { fsdb } = initialize();
+		const { fsdb } = await initialize();
 
-		await basiqApi.initialize(defineString("BASIQ_KEY").value());
 		const id = await basiqApi.createUser(req.data.email, req.data.name);
 		const token = await basiqApi.generateClientToken();
 

@@ -2,17 +2,13 @@ import { onMessagePublished } from "firebase-functions/v2/pubsub";
 import { getInsights } from "./insights/insights";
 import { UserRecord } from "firebase-admin/auth";
 import { UserData } from "../../types";
-import { initialize } from "../../firebase";
-import basiqApi from "../../api";
-import { defineString } from "firebase-functions/params";
+import initialize from "../../utils.js";
 
 export default onMessagePublished(
 	{ topic: "projects/personal-finance-34aec/topics/insights", region: "australia-southeast1", memory: "512MiB", cpu: 1, retry: false },
 	async (event) => {
-		const { fsdb, auth } = initialize();
-		await basiqApi.initialize(defineString("BASIQ_KEY").value());
+		const { fsdb, auth } = await initialize();
 
-		console.log(event.data.message.json, event.data.message.data, typeof event.data.message.json);
 		const data = event.data.message.json as { uuid?: string; force?: boolean };
 
 		let users: UserRecord[];
@@ -21,8 +17,6 @@ export default onMessagePublished(
 		} else {
 			users = (await auth.listUsers()).users;
 		}
-
-		console.log(users.length);
 
 		await Promise.all(
 			users.map(async (user) => {
