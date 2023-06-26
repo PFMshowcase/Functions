@@ -110,9 +110,11 @@ export type Transaction = {
 	amount: string;
 	balance: string;
 	class: string;
-	subClass?: { code?: string; title?: string };
+	subClass: { code?: string; title?: string };
 	connection: string;
 	description: string;
+	categoryIcon?: string;
+	categoryInfo?: MerchantCategory;
 	enrich: {
 		cleanDescription: string;
 		tags: unknown;
@@ -277,4 +279,15 @@ type AffordabilityLiability = {
 type AffordabilityAccount = {
 	product: string;
 	type: string;
+};
+
+export type MerchantCategories = {
+	[key: string]: MerchantCategory;
+};
+
+export type MerchantCategory = {
+	description: string;
+	iosIcon: string;
+	code: string;
+	unknown: boolean;
 };

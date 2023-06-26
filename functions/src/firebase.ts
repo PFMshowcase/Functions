@@ -9,7 +9,7 @@ export const updateUser = async (fsdb: Firestore, uuid: string, userData: UserDa
 	batch.set(userRef, userData, { merge: true });
 
 	transactions.forEach((transaction) => {
-		batch.create(userRef.collection("transactions").doc(), transaction);
+		batch.set(userRef.collection("transactions").doc(transaction.id), transaction);
 	});
 
 	try {

@@ -33,7 +33,6 @@ if (!Date.getDaysAgo) {
 
 export const deepCopy = <T>(obj: T): T => {
 	if (obj === null || typeof obj !== "object") return obj;
-	console.log(obj == null, obj === null);
 
 	if (obj instanceof Date) {
 		const copy = new Date();

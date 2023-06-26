@@ -1,20 +1,13 @@
 import { Firestore } from "firebase-admin/firestore";
 import { CustomHttpsError, Transaction, UserData, customErrorTypes } from "../../../types";
-import { deepCopy } from "../../../utils";
 
-export const getMonthlySummary = async (fsdb: Firestore, transactions: Transaction[], uuid: string, userData: UserData): Promise<UserData> => {
+export const getMonthlySummary = async (fsdb: Firestore, allTransactions: Transaction[], userData: UserData): Promise<UserData> => {
 	if (!userData.basiq_affordability) {
 		throw CustomHttpsError.create(customErrorTypes.generic, "not-found", "Could not get Affordability statement for summary");
 	}
 
 	let monthlyIncome = 0.0;
 	let monthlyExpenses = 0.0;
-
-	const oldTransactionData = await fsdb.collection("users").doc(uuid).collection("transactions").get();
-	const allTransactions = deepCopy(transactions);
-	oldTransactionData.forEach((doc) => {
-		allTransactions.push(doc.data() as Transaction);
-	});
 
 	allTransactions.forEach((transaction) => {
 		if (transaction.postDate.toDate().getMonth() === new Date(Date.now()).getMonth()) {

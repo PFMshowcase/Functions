@@ -1,7 +1,7 @@
 import { onMessagePublished } from "firebase-functions/v2/pubsub";
 import { getInsights } from "./insights/insights";
 import { UserRecord } from "firebase-admin/auth";
-import { UserData } from "../../types";
+import { MerchantCategories, UserData } from "../../types";
 import initialize from "../../utils.js";
 
 export default onMessagePublished(
@@ -18,6 +18,8 @@ export default onMessagePublished(
 			users = (await auth.listUsers()).users;
 		}
 
+		const merchantCategoryIcons = (await fsdb.collection("merchantCategories").doc("icons").get()).data() as MerchantCategories | undefined;
+
 		await Promise.all(
 			users.map(async (user) => {
 				const lastRefresh = new Date(user.metadata.lastSignInTime);
@@ -27,7 +29,7 @@ export default onMessagePublished(
 					const userRef = fsdb.collection("users").doc(user.uid);
 					const userData = (await userRef.get()).data() as UserData | undefined;
 					await userRef.update({ refreshing: true });
-					if (userData) await getInsights(fsdb, userData, user.uid);
+					if (userData) await getInsights(fsdb, userData, user.uid, merchantCategoryIcons);
 				}
 				return;
 			})
