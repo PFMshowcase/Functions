@@ -7,12 +7,10 @@ import { Transaction, UserData } from "../../../types.js";
 export const getTransactions = async (userData: UserData): Promise<[Transaction[], UserData, { code: string; description: string }[]]> => {
 	// Get one month ago if no latest transaction
 	if (!userData.basiq_transactions?.latest_transaction) {
-		const prevTenDays = new Date();
-		const currentDayNum = prevTenDays.getDate();
+		const prevMonth = new Date();
+		prevMonth.setDate(prevMonth.getMonth() - 1);
 
-		prevTenDays.setDate(currentDayNum - 5);
-
-		userData.basiq_transactions = { latest_transaction: Timestamp.fromDate(prevTenDays), first_transaction: Timestamp.fromDate(prevTenDays) };
+		userData.basiq_transactions = { latest_transaction: Timestamp.fromDate(prevMonth), first_transaction: Timestamp.fromDate(prevMonth) };
 	}
 
 	const unknownMerchantCategories: { code: string; description: string }[] = [];
