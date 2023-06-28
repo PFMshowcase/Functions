@@ -47,7 +47,7 @@ const getCategory = (merchantCategories: MerchantCategories, transactionCategory
 		const code = parseInt(transactionCategory.code);
 
 		if (code >= 700) {
-			return { code: transactionCategory.code, description: transactionCategory.title, iosIcon: "wrench.and.screwdriver.fill", unknown: true };
+			return { code: transactionCategory.code, description: transactionCategory.title, iosIcon: "wrench.and.screwdriver", unknown: true };
 		} else if (code >= 400) return { code: transactionCategory.code, description: transactionCategory.title, iosIcon: "bag", unknown: true };
 	}
 
